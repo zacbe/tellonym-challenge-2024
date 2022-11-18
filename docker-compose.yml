@@ -1,0 +1,15 @@
+version: "3.5"
+services:
+  mysql:
+    image: mysql:5.7
+    # uncomment below if you run on ARM macs (m1 etc)
+    # platform: linux/x86_64
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: tellonym
+      MYSQL_USER: tellonym
+      MYSQL_PASSWORD: tellonym
+      MYSQL_DATABASE: tellonym_testing
+    volumes:
+      - ./src/logic/db.sql:/docker-entrypoint-initdb.d/setup.sql
