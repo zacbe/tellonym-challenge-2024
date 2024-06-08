@@ -6,6 +6,7 @@ import { NextFunction, Request, Response } from './util/ownExpressTypes'
 import { notFoundRoute } from './routes/notFoundRoute'
 import logger from './util/logger'
 import chatsRoutes from './routes/chats'
+import interviewRoutes from './routes/interviews'
 
 // Create Express server
 const app = express()
@@ -93,7 +94,8 @@ if (
  * Primary app routes.
  */
 app.use(chatsRoutes)
-app.get('/info', (req, res) => res.end())
+app.use(interviewRoutes)
+app.get('/info', (_req, res) => res.end())
 app.use(notFoundRoute)
 
 export default app
