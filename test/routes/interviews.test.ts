@@ -11,6 +11,21 @@ afterEach(async () => {
 })
 
 describe('User Interview Route', () => {
-  describe('POST /userinterview', () => {})
+  describe('POST /userinterview', () => {
+    it('returns 201 if data is saved successfully', async () => {
+      const body = {
+        availability: '2024-01-10',
+        phoneNumber: '123-456-7890',
+        birthdate: '2000-01-01',
+      }
+      const response = await TestPrep.sendPostRequest({
+        path: '/userinterview',
+        postBody: body,
+        jwtToken: validToken,
+      })
+
+      expect(response.status).toBe(201)
+    })
+  })
   describe('GET /userinterview', () => {})
 })
