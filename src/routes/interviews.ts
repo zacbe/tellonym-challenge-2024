@@ -3,7 +3,10 @@ import express from 'express'
 import asyncHandler from 'express-async-handler'
 import { Request, Response } from '../util/ownExpressTypes'
 import { jwtMiddle } from '../util/jwtMiddleware'
-import { createUserInterview } from '../logic/interviews'
+import {
+  createUserInterview,
+  getLatestUserInterviews,
+} from '../logic/interviews'
 import { sendErrorResponse, ErrorCodes } from '../util/errors'
 
 const router = express.Router()
@@ -40,9 +43,12 @@ router.get(
     const limit = parseInt(req.query.limit as string, 10) || 20
 
     try {
-      // implement the logic here
+      const rows = await getLatestUserInterviews(limit)
       const response = {
-        payload: {},
+        payload: {
+          ids: rows.map((row) => row.id),
+          data: rows,
+        },
         meta: {
           hasMore: true,
         },
