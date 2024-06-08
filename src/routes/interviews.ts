@@ -4,6 +4,7 @@ import asyncHandler from 'express-async-handler'
 import { Request, Response } from '../util/ownExpressTypes'
 import { jwtMiddle } from '../util/jwtMiddleware'
 import { createUserInterview } from '../logic/interviews'
+import { sendErrorResponse, ErrorCodes } from '../util/errors'
 
 const router = express.Router()
 
@@ -14,6 +15,7 @@ router.post(
     const { availability, phoneNumber, birthdate } = req.body
 
     if (!availability || !phoneNumber || !birthdate) {
+      sendErrorResponse(res, 400, ErrorCodes.PARAMETER_INVALID)
       return
     }
 
@@ -26,7 +28,7 @@ router.post(
 
       res.status(201).json({ interviewId })
     } catch (error) {
-      res.status(500).json({ error: error.message })
+      sendErrorResponse(res, 500, ErrorCodes.INTERNAL_ERROR)
     }
   })
 )
@@ -46,9 +48,9 @@ router.get(
         },
       }
 
-      res.json({ message: 'userinterview' })
+      res.json(response)
     } catch (error) {
-      res.status(500).json({ error: error.message })
+      sendErrorResponse(res, 500, ErrorCodes.INTERNAL_ERROR)
     }
   })
 )
