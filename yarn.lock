@@ -6632,9 +6632,9 @@ url-parse-lax@^3.0.0:
     prepend-http "^2.0.0"
 
 useragent@^2.3.0:
-  version "2.4.0"
-  resolved "https://registry.npmjs.org/useragent/-/useragent-2.4.0.tgz"
-  integrity sha512-wJ7nGUycxSlwtBZZb5ZzcpwQa75tPwWx6yKgqZr8egSdh8iMHbIyZz/TLtUw/uOwzGQ83TSqtZ4+B5kRQUSteg==
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/useragent/-/useragent-2.3.0.tgz#217f943ad540cb2128658ab23fc960f6a88c9972"
+  integrity sha512-4AoH4pxuSvHCjqLO04sU6U/uE65BYza8l/KKBS0b0hnUPWi+cQ2BpeTEwejCSx9SPV5/U03nniDTrWx5NrmKdw==
   dependencies:
     lru-cache "4.1.x"
     tmp "0.0.x"
