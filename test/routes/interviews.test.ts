@@ -27,5 +27,17 @@ describe('User Interview Route', () => {
       expect(response.status).toBe(201)
     })
   })
-  describe('GET /userinterview', () => {})
+
+  describe('GET /userinterview', () => {
+    it('returns an empty array if there are no user interviews', async () => {
+      const response = await TestPrep.getGetHttpResponse({
+        path: '/userinterview',
+        jwtToken: validToken,
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.body.payload.ids).toHaveLength(0)
+      expect(response.body.meta.hasMore).toBe(false)
+    })
+  })
 })
