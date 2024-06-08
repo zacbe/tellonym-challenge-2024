@@ -6,6 +6,7 @@ import { jwtMiddle } from '../util/jwtMiddleware'
 import {
   createUserInterview,
   getLatestUserInterviews,
+  countUserInterviews,
 } from '../logic/interviews'
 import { sendErrorResponse, ErrorCodes } from '../util/errors'
 
@@ -43,18 +44,16 @@ router.get(
     const limit = parseInt(req.query.limit as string, 10) || 20
 
     try {
-      const rows = await getLatestUserInterviews(limit)
-      const response = {
-        payload: {
-          ids: rows.map((row) => row.id),
-          data: rows,
-        },
-        meta: {
-          hasMore: true,
-        },
-      }
+      const payload = await getLatestUserInterviews(limit)
+      const totalInterviews = await countUserInterviews()
+      const hasMore = totalInterviews > limit
 
-      res.json(response)
+      res.json({
+        payload,
+        meta: {
+          hasMore,
+        },
+      })
     } catch (error) {
       sendErrorResponse(res, 500, ErrorCodes.INTERNAL_ERROR)
     }
