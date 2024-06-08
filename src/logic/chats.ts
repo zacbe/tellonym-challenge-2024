@@ -1,4 +1,4 @@
-import { format, OkPacket, RowDataPacket } from 'mysql2'
+import { OkPacket, RowDataPacket } from 'mysql2'
 import * as db from './db'
 
 /**
@@ -35,11 +35,11 @@ export const getChats = async ({
 > => {
   const [dbResults] = await db.pool.query<RowDataPacket[]>({
     sql: `SELECT id, user_a, user_b
-FROM chats
-WHERE user_a = :userId OR user_b = :userId
-${oldestId ? 'AND id < :oldestId' : ''}
-ORDER BY id DESC
-LIMIT :limit`,
+          FROM chats
+          WHERE user_a = :userId OR user_b = :userId
+          ${oldestId ? 'AND id < :oldestId' : ''}
+          ORDER BY id DESC
+          LIMIT :limit`,
     values: {
       userId,
       limit,
@@ -51,4 +51,37 @@ LIMIT :limit`,
     id: dbResult.id,
     users: [dbResult.user_a, dbResult.user_b],
   }))
+}
+
+export const deleteNewestMessage = async ({
+  bodyUserId,
+  reqUserId,
+}: {
+  bodyUserId: number
+  reqUserId: number
+}): Promise<boolean> => {
+  const allChats = await getChats({
+    userId: reqUserId,
+  })
+  const chat = allChats.find((_chat) => _chat.users.includes(bodyUserId))
+
+  if (!chat) {
+    throw new Error('Chat not found')
+  }
+
+  const [messages] = await db.pool.query<RowDataPacket[]>({
+    sql: `SELECT id FROM chat_messages WHERE chat_id = :chatId ORDER BY id DESC LIMIT 1`,
+    values: {
+      chatId: chat.id,
+    },
+  })
+
+  const [deletionResult] = await db.pool.query<OkPacket>({
+    sql: `DELETE FROM chat_messages WHERE id = :messageId`,
+    values: {
+      messageId: messages[0]?.id ?? 0,
+    },
+  })
+
+  return deletionResult.affectedRows > 0
 }

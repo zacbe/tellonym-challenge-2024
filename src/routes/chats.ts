@@ -1,11 +1,9 @@
 /* eslint-disable import/no-default-export */
 import express from 'express'
 import asyncHandler from 'express-async-handler'
-import { OkPacket, RowDataPacket } from 'mysql2'
 import { Request, Response } from '../util/ownExpressTypes'
 import { jwtMiddle } from '../util/jwtMiddleware'
-import { getChats } from '../logic/chats'
-import * as db from '../logic/db'
+import { getChats, deleteNewestMessage } from '../logic/chats'
 
 const router = express.Router()
 
@@ -49,37 +47,12 @@ router.post(
       }) as unknown as void
     }
 
-    const allChats = await getChats({
-      userId: req.user.id,
-    })
-    const chat = allChats.find((_chat) => _chat.users.includes(userId))
-
-    if (!chat) {
-      return res.status(404).json({
-        error: {
-          message: 'Chat with user not found',
-          code: 'NOT_FOUND',
-        },
-      }) as unknown as void
-    }
-
-    const [messages] = await db.pool.query<RowDataPacket[]>({
-      sql: `SELECT id FROM chat_messages WHERE chat_id = :chatId ORDER BY id DESC LIMIT 1`,
-      values: {
-        chatId: chat.id,
-      },
+    const response = await deleteNewestMessage({
+      bodyUserId: userId,
+      reqUserId: req.user.id,
     })
 
-    const [deletionResult] = await db.pool.query<OkPacket>({
-      sql: `DELETE FROM chat_messages WHERE id = :messageId`,
-      values: {
-        messageId: messages[0]?.id ?? 0,
-      },
-    })
-
-    return res.json({
-      success: deletionResult.affectedRows > 0,
-    }) as unknown as void
+    return res.json({ success: response }) as unknown as void
   })
 )
 
