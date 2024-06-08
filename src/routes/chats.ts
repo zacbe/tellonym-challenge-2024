@@ -47,12 +47,30 @@ router.post(
       }) as unknown as void
     }
 
-    const response = await deleteNewestMessage({
-      bodyUserId: userId,
-      reqUserId: req.user.id,
-    })
+    try {
+      const response = await deleteNewestMessage({
+        bodyUserId: userId,
+        reqUserId: req.user.id,
+      })
 
-    return res.json({ success: response }) as unknown as void
+      if (!response) {
+        return res.status(404).json({
+          error: {
+            message: 'Message not found',
+            code: 'NOT_FOUND',
+          },
+        }) as unknown as void
+      }
+
+      return res.json({ success: response }) as unknown as void
+    } catch (error) {
+      return res.status(500).json({
+        error: {
+          message: 'Internal Server Error',
+          code: 'INTERNAL_ERROR',
+        },
+      }) as unknown as void
+    }
   })
 )
 

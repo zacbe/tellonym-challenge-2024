@@ -53,6 +53,33 @@ export const getChats = async ({
   }))
 }
 
+export const deleteMessageById = async (
+  messageId: number
+): Promise<boolean> => {
+  const [deletionResult] = await db.pool.query<OkPacket>({
+    sql: `DELETE FROM chat_messages 
+          WHERE id = :messageId`,
+    values: { messageId },
+  })
+
+  return deletionResult.affectedRows > 0
+}
+
+export const getNewestMessageId = async (
+  chatId: number
+): Promise<number | null> => {
+  const [messages] = await db.pool.query<RowDataPacket[]>({
+    sql: `SELECT id 
+          FROM chat_messages 
+          WHERE chat_id = :chatId 
+          ORDER BY id DESC 
+          LIMIT 1`,
+    values: { chatId },
+  })
+
+  return messages.length ? messages[0].id : null
+}
+
 export const deleteNewestMessage = async ({
   bodyUserId,
   reqUserId,
@@ -60,28 +87,20 @@ export const deleteNewestMessage = async ({
   bodyUserId: number
   reqUserId: number
 }): Promise<boolean> => {
-  const allChats = await getChats({
-    userId: reqUserId,
-  })
+  const allChats = await getChats({ userId: reqUserId })
   const chat = allChats.find((_chat) => _chat.users.includes(bodyUserId))
 
   if (!chat) {
-    throw new Error('Chat not found')
+    // introduce custom error class to handle this
+    // e.g. NotFoundError
+    throw new Error('Chat with user not found')
   }
 
-  const [messages] = await db.pool.query<RowDataPacket[]>({
-    sql: `SELECT id FROM chat_messages WHERE chat_id = :chatId ORDER BY id DESC LIMIT 1`,
-    values: {
-      chatId: chat.id,
-    },
-  })
+  const messageId = await getNewestMessageId(chat.id)
 
-  const [deletionResult] = await db.pool.query<OkPacket>({
-    sql: `DELETE FROM chat_messages WHERE id = :messageId`,
-    values: {
-      messageId: messages[0]?.id ?? 0,
-    },
-  })
+  if (!messageId) {
+    return false
+  }
 
-  return deletionResult.affectedRows > 0
+  return deleteMessageById(messageId)
 }

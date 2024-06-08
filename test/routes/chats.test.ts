@@ -34,4 +34,17 @@ describe('Chat routes', () => {
       expect(response.body.chats).toHaveLength(1)
     })
   })
+
+  describe('POST /deletenewestmessage', () => {
+    it('returns 400 if userId is not provided', async () => {
+      const response = await TestPrep.sendPostRequest({
+        path: '/deletenewestmessage',
+        jwtToken: validToken,
+        postBody: {},
+      })
+
+      expect(response.status).toBe(400)
+      expect(response.body.error.code).toBe('PARAMETER_INVALID')
+    })
+  })
 })
