@@ -21,3 +21,12 @@ CREATE TABLE IF NOT EXISTS `tellonym_testing`.`chat_messages` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `tellonym_testing`.`user_interviews` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `availability` date NOT NULL,
+  `phone_number` varchar(255) NOT NULL,
+  `birthdate` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
