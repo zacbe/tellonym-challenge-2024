@@ -39,4 +39,5 @@ export const sendPostRequest = async ({
 export const emptyDb = async (): Promise<void> => {
   await db.pool.query('DELETE FROM chats')
   await db.pool.query('DELETE FROM chat_messages')
+  await db.pool.query('DELETE FROM user_interviews')
 }
