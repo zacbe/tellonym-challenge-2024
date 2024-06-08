@@ -91,8 +91,6 @@ export const deleteNewestMessage = async ({
   const chat = allChats.find((_chat) => _chat.users.includes(bodyUserId))
 
   if (!chat) {
-    // introduce custom error class to handle this
-    // e.g. NotFoundError
     throw new Error('Chat with user not found')
   }
 

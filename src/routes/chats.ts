@@ -4,6 +4,7 @@ import asyncHandler from 'express-async-handler'
 import { Request, Response } from '../util/ownExpressTypes'
 import { jwtMiddle } from '../util/jwtMiddleware'
 import { getChats, deleteNewestMessage } from '../logic/chats'
+import { sendErrorResponse, ErrorCodes, NotFoundError } from '../util/errors'
 
 const router = express.Router()
 
@@ -35,41 +36,32 @@ router.get(
 router.post(
   '/deletenewestmessage',
   jwtMiddle({ required: true }),
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { userId } = req.body
 
     if (!userId) {
-      return res.status(400).json({
-        error: {
-          message: 'userId is required',
-          code: 'PARAMETER_INVALID',
-        },
-      }) as unknown as void
+      sendErrorResponse(res, 400, ErrorCodes.PARAMETER_INVALID)
+      return
     }
 
     try {
-      const response = await deleteNewestMessage({
+      const success = await deleteNewestMessage({
         bodyUserId: userId,
         reqUserId: req.user.id,
       })
 
-      if (!response) {
-        return res.status(404).json({
-          error: {
-            message: 'Message not found',
-            code: 'NOT_FOUND',
-          },
-        }) as unknown as void
+      if (!success) {
+        sendErrorResponse(res, 404, ErrorCodes.NOT_FOUND)
+        return
       }
 
-      return res.json({ success: response }) as unknown as void
+      res.json({ success })
     } catch (error) {
-      return res.status(500).json({
-        error: {
-          message: 'Internal Server Error',
-          code: 'INTERNAL_ERROR',
-        },
-      }) as unknown as void
+      if (error instanceof NotFoundError) {
+        sendErrorResponse(res, 404, ErrorCodes.NOT_FOUND)
+      } else {
+        sendErrorResponse(res, 500, ErrorCodes.INTERNAL_ERROR)
+      }
     }
   })
 )
